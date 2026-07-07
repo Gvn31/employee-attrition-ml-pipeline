@@ -3,7 +3,10 @@ import pandas as pd
 try:
     
      #Load Dataset
+    print("Loading Dataset...")
     df=pd.read_csv(r"../data/raw/emp_attrition_csv.csv")
+
+    print('Cleaning Dataset...')
 
     #Drop Duplicates
     df.drop_duplicates(inplace=True)
@@ -23,6 +26,7 @@ try:
 
     #Save Cleaned Dataset
     df.to_csv(r"../data/processed/emp_attrition_cleaned.csv",index=False)
+    print('Dataset saved successfully!')
     
 except Exception as e:
     print(f"Error: {e}")
