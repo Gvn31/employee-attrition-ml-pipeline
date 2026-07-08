@@ -1,59 +1,80 @@
 import pandas as pd
-import mlflow
-import mlflow.sklearn
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
-import os
 import joblib
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split,GridSearchCV
 
-features_path = "../data/processed/features.csv"
-print(f"Loading features from {features_path}...")
-df = pd.read_csv(features_path)
+def train_model():
 
-print("Splitting data into train and test sets...")
-X = df.drop(columns=['Attrition'])
-y = df['Attrition']
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    """
+    Train Logistic Regression and Random Forest models
+    using the feature-engineered employee attrition dataset.
 
-# Define hyperparameters
-params = {
-    'n_estimators': 100,
-    'max_depth': 10,
-    'random_state': 42
-}
+    Returns:
+        None
+    """
 
-mlflow.set_experiment("Employee_Attrition_Prediction")
+    # Load the preprocessed data
+    df = pd.read_csv("../data/processed/emp_attrition_features.csv")
 
-with mlflow.start_run():
-    print("Training Random Forest model...")
-    model = RandomForestClassifier(**params)
-    model.fit(X_train, y_train)
+    # Split the data into training and testing sets
+    print("Splitting dataset...")
+
+    X = df.drop(columns=['Attrition'])
+    y = df['Attrition']
     
-    # Predictions
-    y_pred = model.predict(X_test)
-    y_proba = model.predict_proba(X_test)[:, 1]
+    x_train,x_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42,stratify=y)
+
     
-    # Calculate metrics
-    accuracy = accuracy_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred)
-    auc = roc_auc_score(y_test, y_proba)
-    
-    print(f"Model Accuracy: {accuracy:.4f}")
-    print(f"Model F1-Score: {f1:.4f}")
-    print(f"Model AUC: {auc:.4f}")
-    
-    # Log parameters and metrics to MLflow
-    mlflow.log_params(params)
-    mlflow.log_metric("accuracy", accuracy)
-    mlflow.log_metric("f1_score", f1)
-    mlflow.log_metric("roc_auc", auc)
-    
-    # Log the model
-    mlflow.sklearn.log_model(model, "random_forest_model")
-    print("Model logged to MLflow successfully!")
-    
-    # Save model locally
-    os.makedirs("../models", exist_ok=True)
-    joblib.dump(model, "../models/random_forest_model.pkl")
-    print("Model saved locally to ../models/random_forest_model.pkl")
+
+    #Create and train the model
+    #Logistic Regression
+    print("Training Logistic Regression Model...")
+    model1=LogisticRegression(random_state=42)
+    model1.fit(x_train,y_train)
+
+    print("Training Complete!")
+
+    #Random Forest
+    print("Training Random Forest Model...")
+
+    model2=RandomForestClassifier(random_state=42)
+    param_grid = {
+        "n_estimators": [100, 200],
+        "max_depth": [10, 20, None],
+        "min_samples_split": [2, 5],
+        "min_samples_leaf": [1, 2]
+    }
+
+    # Grid Search
+    grid_search = GridSearchCV(
+        estimator=model2,
+        param_grid=param_grid,
+        cv=5,
+        scoring="f1",
+        n_jobs=-1
+    )
+    grid_search.fit(x_train, y_train)
+
+    best_rf_model = grid_search.best_estimator_
+    print("Best Parameters:", grid_search.best_params_)
+
+    print("Training Complete!")
+
+    # Save the trained models
+    print("Saving Trained Models")
+    joblib.dump(
+        model1,"../models/logistic_regression.pkl"
+    )
+
+    joblib.dump(
+        best_rf_model,"../models/random_forest.pkl"
+    )
+    print("Models saved successfully!")
+
+
+if __name__ == "__main__":
+    try:
+        train_model()
+    except Exception as e:
+        print(f"Error: {e}")
