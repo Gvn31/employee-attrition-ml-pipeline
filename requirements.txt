@@ -4,4 +4,4 @@ matplotlib
 scikit-learn
 joblib
 xgboost
-mlflow
+mlflow==2.22.1
