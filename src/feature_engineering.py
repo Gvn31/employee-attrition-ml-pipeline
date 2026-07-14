@@ -3,30 +3,23 @@ from sklearn.preprocessing import StandardScaler
 import joblib
 
 
-def feature_engineering():
+def transform_features(df, training=True):
     """
-    Perform feature engineering on the cleaned employee attrition dataset.
+    Perform feature engineering on the given dataframe.
 
-    This function performs the following steps:
-    - Loads the cleaned dataset.
-    - Encodes the target variable.
-    - Applies One-Hot Encoding to categorical features.
-    - Scales numerical features using StandardScaler.
-    - Saves the feature-engineered dataset.
+    Args:
+        df (DataFrame): Input dataframe.
+        training (bool): True for training, False for prediction.
 
     Returns:
-        None
+        DataFrame: Feature engineered dataframe.
     """
-    print("Loading data...")
-    df = pd.read_csv("../data/processed/emp_attrition_cleaned.csv")
 
-    print("Encoding features...")
+    # Encode target variable
+    if training and "Attrition" in df.columns:
+        df["Attrition"] = df["Attrition"].map({"Stayed": 0, "Left": 1})
 
-    # Map target variable
-    if "Attrition" in df.columns:
-        df["Attrition"] = df["Attrition"].map({"Stayed": 0,"Left": 1})
-
-    # Encode categorical columns
+    # One-Hot Encoding
     categorical_cols = [
         "Gender",
         "Job Role",
@@ -44,10 +37,9 @@ def feature_engineering():
         "Company Reputation",
         "Employee Recognition"
     ]
+
     df = pd.get_dummies(df,columns=categorical_cols,drop_first=True,dtype=int)
 
-    print("Scaling numerical features...")
-    standard_scaler = StandardScaler()
     numerical_cols = [
         "Age",
         "Years at Company",
@@ -57,26 +49,49 @@ def feature_engineering():
         "Number of Dependents",
         "Company Tenure (In Months)"
     ]
-    df[numerical_cols] = standard_scaler.fit_transform(df[numerical_cols])
-    # Save scaler
-    joblib.dump(standard_scaler, "../models/scaler.pkl")
-    print("Scaler saved successfully!")
 
-    # Save feature column names
-    feature_columns = df.drop(columns=["Attrition"]).columns.tolist()
-    joblib.dump(feature_columns, "../models/feature_columns.pkl")
-    print("Feature columns saved successfully!")
+    if training:
 
+        scaler = StandardScaler()
+        df[numerical_cols] = scaler.fit_transform(df[numerical_cols])
+        joblib.dump(scaler, "../models/scaler.pkl")
+        feature_columns = df.drop(columns=["Attrition"]).columns.tolist()
+        joblib.dump(feature_columns, "../models/feature_columns.pkl")
+
+    else:
+        scaler = joblib.load("../models/scaler.pkl")
+        df[numerical_cols] = scaler.transform(df[numerical_cols])
+        feature_columns = joblib.load("../models/feature_columns.pkl")
+
+        for column in feature_columns:
+            if column not in df.columns:
+                df[column] = 0
+        df = df[feature_columns]
+
+    return df
+
+
+def feature_engineering():
+    """
+    Perform feature engineering on the cleaned employee attrition dataset.
+
+    Returns:
+        None
+    """
+
+    print("Loading data...")
+    df = pd.read_csv("../data/processed/emp_attrition_cleaned.csv")
+    print("Applying feature engineering...")
+    df = transform_features(df, training=True)
     print("Saving feature engineered dataset...")
     df.to_csv("../data/processed/emp_attrition_features.csv",index=False)
 
     print("Feature engineering completed successfully!")
 
 
-
 if __name__ == "__main__":
     try:
         feature_engineering()
+
     except Exception as e:
         print(f"Error: {e}")
-
