@@ -1,74 +1,50 @@
-# employee-attrition-mlops-pipeline
+# Employee Attrition MLOps Pipeline
 
-# Project Overview
+## Production-Grade Employee Attrition Prediction using MLOps
 
-This project aims to develop an end-to-end Machine Learning Operations (MLOps) pipeline to predict employee attrition using employee demographic and job-related information. The pipeline covers data analysis, preprocessing, feature engineering, model training, evaluation, and deployment.
+An end-to-end **Production-Grade MLOps Pipeline** that predicts whether an employee is likely to leave an organization based on demographic and workplace-related information.
 
+This project demonstrates:
+- Data Engineering
+- Feature Engineering
+- Model Training
+- Model Evaluation
+- MLflow Experiment Tracking
+- FastAPI Deployment
+- Docker Containerization
+- Prediction Monitoring
+- GitHub Actions CI/CD
 
-# Phase 1: Problem Definition
+---
 
-## 1. Business Goal
+# Project Objective
 
-Employee attrition is a major challenge for organizations as it leads to increased recruitment costs, productivity loss, and knowledge gaps. The goal of this project is to build a machine learning model that predicts whether an employee is likely to leave the organization. This enables the Human Resources (HR) department to identify at-risk employees and take proactive retention measures.
+Employee attrition is a major challenge for organizations because it increases hiring costs, reduces productivity, and causes knowledge loss.
 
-## 2. Machine Learning Task
-Problem Type: Binary Classification
+The objective of this project is to build a Machine Learning model capable of predicting employee attrition so that HR teams can identify at-risk employees and take proactive retention measures.
 
-Target Variable: Attrition
+---
 
-Classes:
-    - Stayed
-    - Left
+# Machine Learning Task
 
-The model predicts whether an employee will stay with the organization or leave.
+**Problem Type:** Binary Classification
 
+**Target Variable:** Attrition
 
-## 3. Feasibility Assessment
-
-- The employee attrition dataset is available.
-- The dataset contains sufficient employee demographic and job-related features.
-- Binary classification is suitable for the problem.
-- Model predictions should be interpretable for HR decision-making.
-- Real-time prediction is not mandatory; batch prediction is sufficient.
-
-## 4. Key Performance Indicators (KPIs)
-
-### Model KPIs
-
-- Accuracy
-- Precision
-- Recall
-- F1 Score
-- ROC-AUC Score
-
-### System KPIs
-
-- Low inference time
-- Reliable prediction performance
-- Maintainable and reproducible ML pipeline
-
-
-## 5. Baseline Model
-
-**Logistic Regression**
-A simple baseline model will be used initially to establish reference performance.
-
-
-## 6. Final Model
-
-**Random Forest Classifier**
-
-The final model will be selected based on evaluation metrics and overall performance.
+**Classes**
+- Stayed
+- Left
 
 ---
 
 # Project Workflow
-```
+
+```text
 Repository Setup
         ↓
 Problem Definition
         ↓
-Exploratory Data Analysis (EDA)
+Exploratory Data Analysis
         ↓
 Data Preprocessing
         ↓
@@ -78,66 +54,215 @@ Model Training
         ↓
 Model Evaluation
         ↓
-Model Deployment
+MLflow Experiment Tracking
+        ↓
+FastAPI Deployment
+        ↓
+Docker Containerization
+        ↓
+Prediction Monitoring
+        ↓
+GitHub Actions CI/CD
 ```
 
+---
 
-# Project Structure
+# Production MLOps Workflow
 
-```
-employee-attrition-mlops-pipeline/
-│
-├── data/
-│   ├── raw/
-│   └── processed/
-│
-├── notebooks/
-│   └── EDA.ipynb
-│
-├── src/
-│   ├── preprocessing.py
-│   ├── feature_engineering.py
-│   ├── train.py
-│   ├── evaluate.py
-│
-├── models/
-│
-├── reports/
-│
-├── app/
-│
-├── requirements.txt
-├── README.md
-├── LICENSE
-└── .gitignore
-```
+| Phase | Status |
+|--------|--------|
+| Phase 1 – Data Ingestion | ✅ |
+| Phase 2 – Data Engineering | ✅ |
+| Phase 3 – Feature Engineering | ✅ |
+| Phase 4 – Model Training | ✅ |
+| Phase 5 – Model Evaluation | ✅ |
+| Phase 6 – Model Registry (MLflow) | ✅ |
+| Phase 7 – Deployment (FastAPI + Docker) | ✅ |
+| Phase 8 – Monitoring | ✅ |
+| Phase 9 – CI/CD Automation | ✅ |
 
+---
 
 # Technologies Used
 
 - Python
 - Pandas
 - NumPy
-- Matplotlib
 - Scikit-learn
-- Jupyter Notebook
+- XGBoost
+- Matplotlib
+- MLflow
+- FastAPI
+- Uvicorn
+- Docker
 - Git
 - GitHub
-- Conda
+- GitHub Actions
 
+---
 
-# Current Progress
+# Project Structure
 
-- [x] Repository Setup
-- [x] Virtual Environment Configuration
-- [x] Project Structure Creation
-- [x] Exploratory Data Analysis (EDA)
-- [ ] Data Preprocessing
-- [ ] Feature Engineering
-- [ ] Model Training
-- [ ] Model Evaluation
-- [ ] Deployment
+```text
+employee-attrition-mlops-pipeline/
+├── .github/
+│   └── workflows/
+│       └── pipeline.yml
+├── data/
+├── logs/
+├── mlruns/
+├── models/
+├── notebooks/
+├── src/
+├── Dockerfile
+├── .dockerignore
+├── requirements.txt
+├── README.md
+└── .gitignore
+```
 
+---
 
-# Author
-Developed as part of an MLOps learning project for Employee Attrition Prediction.
+# Machine Learning Pipeline
+
+## Data Engineering
+- Data Cleaning
+- Missing Value Handling
+- Train/Test Split
+- Data Validation
+
+## Feature Engineering
+- One-Hot Encoding
+- Feature Scaling
+- Feature Alignment
+
+## Models Trained
+- Logistic Regression
+- Decision Tree
+- Random Forest
+- XGBoost
+
+## Evaluation Metrics
+- Accuracy
+- Precision
+- Recall
+- F1 Score
+- ROC-AUC
+- Confusion Matrix
+
+## Best Model
+
+**XGBoost Classifier**
+
+---
+
+# MLflow
+
+- Experiment Tracking
+- Parameter Logging
+- Metric Logging
+- Model Artifact Storage
+- Model Comparison
+
+---
+
+# FastAPI
+
+**GET /** - API status
+
+**POST /predict** - Predict employee attrition
+
+---
+
+# Docker
+
+### Build the Docker image
+
+```cmd
+docker build -t employee-attrition-api .
+```
+
+### Run the Docker container
+
+```cmd
+docker run -p 8000:8000 employee-attrition-api
+```
+---
+
+# Monitoring
+
+Prediction logs include:
+- Timestamp
+- Prediction
+- Stay Probability
+- Leave Probability
+
+Stored in:
+
+```text
+logs/prediction_logs.csv
+```
+
+---
+
+# CI/CD
+
+GitHub Actions automates:
+- Repository Checkout
+- Python Setup
+- Dependency Installation
+- Library Verification
+- Docker Image Build
+
+### Workflow:
+
+```text
+.github/workflows/pipeline.yml
+```
+
+---
+
+# Installation
+
+Open **Command Prompt (CMD)** and run:
+
+```cmd
+git clone <repository-url>
+cd employee-attrition-mlops-pipeline
+conda create -n venv python=3.12
+conda activate venv/
+pip install -r requirements.txt
+uvicorn src.app:app --reload
+```
+
+## Swagger:
+After starting the FastAPI server, open:
+
+```text
+http://127.0.0.1:8000/docs
+
+```
+
+---
+
+# Features
+
+- End-to-End Production-Grade MLOps Pipeline
+- MLflow Experiment Tracking
+- FastAPI REST API
+- Docker Deployment
+- Prediction Monitoring
+- GitHub Actions CI/CD
+
+---
+
+# Future Improvements
+
+- Feature Store (Feast)
+- Data Drift Detection
+- Prometheus & Grafana
+- Kubernetes Deployment
+- Automated Model Retraining
+
+---
+
