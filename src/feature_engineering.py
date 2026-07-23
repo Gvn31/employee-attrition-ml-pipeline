@@ -1,18 +1,18 @@
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import joblib
+import os
+
+# Base project directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+MODEL_DIR = os.path.join(BASE_DIR, "models")
+DATA_DIR = os.path.join(BASE_DIR, "data", "processed")
 
 
 def transform_features(df, training=True):
     """
     Perform feature engineering on the given dataframe.
-
-    Args:
-        df (DataFrame): Input dataframe.
-        training (bool): True for training, False for prediction.
-
-    Returns:
-        DataFrame: Feature engineered dataframe.
     """
 
     # Encode target variable
@@ -38,7 +38,12 @@ def transform_features(df, training=True):
         "Employee Recognition"
     ]
 
-    df = pd.get_dummies(df,columns=categorical_cols,drop_first=False,dtype=int)
+    df = pd.get_dummies(
+        df,
+        columns=categorical_cols,
+        drop_first=False,
+        dtype=int
+    )
 
     numerical_cols = [
         "Age",
@@ -54,42 +59,59 @@ def transform_features(df, training=True):
 
         scaler = StandardScaler()
         df[numerical_cols] = scaler.fit_transform(df[numerical_cols])
-        joblib.dump(scaler, "../models/scaler.pkl")
+
+        joblib.dump(scaler, os.path.join(MODEL_DIR, "scaler.pkl"))
+
         feature_columns = df.drop(columns=["Attrition"]).columns.tolist()
-        joblib.dump(feature_columns, "../models/feature_columns.pkl")
+
+        joblib.dump(
+            feature_columns,
+            os.path.join(MODEL_DIR, "feature_columns.pkl")
+        )
 
     else:
-        scaler = joblib.load("../models/scaler.pkl")
+
+        scaler = joblib.load(os.path.join(MODEL_DIR, "scaler.pkl"))
+
         df[numerical_cols] = scaler.transform(df[numerical_cols])
-        feature_columns = joblib.load("../models/feature_columns.pkl")
+
+        feature_columns = joblib.load(
+            os.path.join(MODEL_DIR, "feature_columns.pkl")
+        )
 
         for column in feature_columns:
             if column not in df.columns:
                 df[column] = 0
+
         df = df[feature_columns]
 
     return df
 
 
 def feature_engineering():
-    """
-    Perform feature engineering on the cleaned employee attrition dataset.
-
-    Returns:
-        None
-    """
 
     print("Loading data...")
-    df = pd.read_csv("../data/processed/emp_attrition_cleaned.csv")
+
+    df = pd.read_csv(
+        os.path.join(DATA_DIR, "emp_attrition_cleaned.csv")
+    )
+
     print("Applying feature engineering...")
+
     df = transform_features(df, training=True)
+
     print("Saving feature engineered dataset...")
-    df.to_csv("../data/processed/emp_attrition_features.csv",index=False)
+
+    df.to_csv(
+        os.path.join(DATA_DIR, "emp_attrition_features.csv"),
+        index=False
+    )
 
     print("Feature engineering completed successfully!")
 
 
 if __name__ == "__main__":
+
     try:
         feature_engineering()
 

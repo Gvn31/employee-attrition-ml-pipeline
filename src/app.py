@@ -4,7 +4,7 @@ import joblib
 import os
 from datetime import datetime
 
-from feature_engineering import transform_features
+from src.feature_engineering import transform_features
 
 # Create FastAPI application
 app = FastAPI(
@@ -13,12 +13,14 @@ app = FastAPI(
     version="1.0"
 )
 
+# Base project directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # Load trained model
 print("Loading trained model...")
-model = joblib.load("../models/xgboost.pkl")
+model = joblib.load(os.path.join(BASE_DIR, "models", "xgboost.pkl"))
 
-#Log file path
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Log file path
 LOG_FILE = os.path.join(BASE_DIR, "logs", "prediction_logs.csv")
 
 
@@ -36,15 +38,12 @@ def log_prediction(input_data, prediction, stay_prob, leave_prob):
     if not os.path.exists(LOG_FILE) or os.path.getsize(LOG_FILE) == 0:
         df.to_csv(LOG_FILE, index=False)
     else:
-        #Append without headers
+        # Append without headers
         df.to_csv(LOG_FILE, mode="a", header=False, index=False)
+
 
 @app.get("/")
 def home():
-    """
-    Home endpoint.
-    """
-
     return {
         "message": "Employee Attrition Prediction API is running successfully!"
     }
@@ -52,9 +51,6 @@ def home():
 
 @app.post("/predict")
 def predict(employee: dict):
-    """
-    Predict employee attrition.
-    """
 
     # Convert input to DataFrame
     df = pd.DataFrame([employee])
@@ -66,21 +62,20 @@ def predict(employee: dict):
     prediction = model.predict(df)
     probability = model.predict_proba(df)
 
-    #Convert probabilitites
+    # Convert probabilities
     stay_prob = probability[0][0]
     leave_prob = probability[0][1]
-
 
     if prediction[0] == 1:
         result = "Employee is likely to leave the company."
     else:
         result = "Employee is likely to stay in the company."
 
-    #Log prediction
+    # Log prediction
     log_prediction(employee, result, stay_prob, leave_prob)
 
     return {
         "prediction": result,
-        "stay_probability": round(float(probability[0][0]), 4),
-        "leave_probability": round(float(probability[0][1]), 4)
+        "stay_probability": round(float(stay_prob), 4),
+        "leave_probability": round(float(leave_prob), 4)
     }
